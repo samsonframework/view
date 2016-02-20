@@ -63,8 +63,10 @@ class Generator
      * @param array  $extensions Collection of file extensions without dot
      * @param string $sourcepath Entry point path
      */
-    public function scan($path, array $extensions = array(View::DEFAULT_EXT), $sourcepath)
+    public function scan($sourcepath, array $extensions = array(View::DEFAULT_EXT), $path = null)
     {
+        $path = isset($path) ? $path : $sourcepath;
+
         // Recursively go deeper into inner folders for scanning
         $folders  = glob($path.'/*', GLOB_ONLYDIR);
         foreach ($folders as $folder) {
