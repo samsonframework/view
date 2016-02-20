@@ -54,8 +54,9 @@ class Generator
     /**
      * Recursively scan path for files with specified extensions.
      *
-     * @param string $path Entry path for scanning
+     * @param string $path       Entry path for scanning
      * @param array  $extensions Collection of file extensions without dot
+     * @param string $sourcepath Entry point path
      */
     public function scan($path, array $extensions = array(View::DEFAULT_EXT), $sourcepath)
     {
@@ -68,7 +69,8 @@ class Generator
         // Iterate file extensions
         foreach ($extensions as $extension) {
             foreach (glob(rtrim($path, '/') . '/*.'.$extension) as $file) {
-                $this->metadata[$file] = $this->analyze($file, $extension, $path);
+                $this->metadata[$file] = $this->analyze($file);
+                $this->metadata[$file]->path = str_replace($sourcepath, '', $file);
                 list($this->metadata[$file]->className,
                     $this->metadata[$file]->namespace) = $this->generateClassName($file, $sourcepath);
             }
@@ -85,8 +87,6 @@ class Generator
     public function analyze($file)
     {
         $metadata = new Metadata();
-        $metadata->path = $file;
-
         // Use PHP tokenizer to find variables
         foreach ($tokens = token_get_all(file_get_contents($file)) as $idx => $token) {
             if (!is_string($token) && $token[0] === T_VARIABLE) {
@@ -151,7 +151,6 @@ class Generator
             ->defClassVar('$path', 'protected', $metadata->path)
             ->commentVar('array', 'Collection of view variables')
             ->defClassVar('$variables', 'public static', array_keys($metadata->variables));
-        ;
 
         // Iterate all view variables
         foreach (array_keys($metadata->variables) as $name) {
