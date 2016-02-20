@@ -8,8 +8,6 @@ SamsonFramework view rendering and generation implementation
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samsonframework/view/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samsonframework/view/?branch=master) 
 [![Total Downloads](https://poser.pugx.org/samsonframework/view/downloads.svg)](https://packagist.org/packages/samsonframework/view)
 [![Stories in Ready](https://badge.waffle.io/samsonframework/view.png?label=ready&title=Ready)](https://waffle.io/samsonframework/view)
-
-## TODO
  
 ##Documentation
 Follow [official documentation](htgtp://github.com/samsonframework/view/blob/master/docs/Index.md).
