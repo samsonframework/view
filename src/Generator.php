@@ -21,6 +21,7 @@ namespace samsonframework\view;
  * TODO: Analyze view file php doc comments to get variable types
  * TODO: If a token variable is not $this and has "->" - this is object, maybe type-hint needs to be added.
  * TODO: Add caching logic to avoid duplicate file reading
+ * TODO: Store relative path instead of full one
  *
  * @package samsonframework\view
  */
