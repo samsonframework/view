@@ -3,3 +3,14 @@
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 20.02.16 at 15:47
  */
+/** @var integer $number */
+?>
+<form>
+    <label>Name:</label><input value="<?= $name?>">
+    <label>Surname:</label><input value="<?= $surname?>">
+    <label>Email:</label><input type="email" value="<?= $email?>">
+    <label>Size:</label><input type="number" value="<?= $number?>">
+    <?php foreach($places as $place) :?>
+        <div><?=$place?></div>
+    <?php endforeach;?>
+</form>
