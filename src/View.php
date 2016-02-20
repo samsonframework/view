@@ -144,5 +144,7 @@ class View implements ViewInterface
         if (count($arguments)) {
             $this->set($arguments[0], $name);
         }
+
+        return $this;
     }
 }
