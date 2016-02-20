@@ -12,10 +12,10 @@ namespace samsonframework\view;
  */
 class Metadata
 {
-    /** @var View class name */
+    /** @var string View class name */
     public $className;
 
-    /** @var View class name space */
+    /** @var string View class name space */
     public $namespace;
 
     /** @var array Collection of view file used variables */
