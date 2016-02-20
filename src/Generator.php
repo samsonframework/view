@@ -18,20 +18,28 @@ namespace samsonframework\view;
  */
 class Generator
 {
+    /** string All generated view classes will end with this suffix */
+    const VIEW_CLASSNAME_SUFFIX = 'View';
+
     /** @var Metadata[] Collection of view metadata */
     protected $metadata = array();
 
     /** @var \samsonphp\generator\Generator */
     protected $generator;
 
+    /** @var string Generated classes namespace prefix */
+    protected $namespacePrefix;
+
     /**
      * Generator constructor.
      *
      * @param \samsonphp\generator\Generator $generator
+     * @param string                               $namespacePrefix
      */
-    public function __construct(\samsonphp\generator\Generator $generator)
+    public function __construct(\samsonphp\generator\Generator $generator, $namespacePrefix)
     {
         $this->generator = $generator;
+        $this->namespacePrefix = ltrim($namespacePrefix, '\\');
     }
 
     /**
@@ -40,13 +48,48 @@ class Generator
      * @param string $path Entry path for scanning
      * @param array  $extensions Collection of file extensions without dot
      */
-    public function scan($path, array $extensions = array(View::DEFAULT_EXT))
+    public function scan($path, array $extensions = array(View::DEFAULT_EXT), $sourcepath)
     {
+        // Recursively go deeper into inner folders for scanning
+        $folders  = glob($path.'/*', GLOB_ONLYDIR);
+        foreach ($folders as $folder) {
+            $this->scan($folder, $extensions, $sourcepath);
+        }
+
+        // Iterate file extensions
         foreach ($extensions as $extension) {
             foreach (glob(rtrim($path, '/') . '/*.'.$extension) as $file) {
-                $this->metadata[$file] = $this->analyze($file);
+                $this->metadata[$file] = $this->analyze($file, $extension, $path);
+                list($this->metadata[$file]->className,
+                    $this->metadata[$file]->namespace) = $this->generateClassName($file, $sourcepath);
             }
         }
+    }
+
+    /**
+     * Generic class name and its name space generator.
+     *
+     * @param string $file Full path to view file
+     * @param string $entryPath Entry path
+     *
+     * @return array Class name[0] and namespace[1]
+     */
+    protected function generateClassName($file, $entryPath)
+    {
+        // Get only file name as a class name with suffix
+        $className = pathinfo($file, PATHINFO_FILENAME).self::VIEW_CLASSNAME_SUFFIX;
+
+        // Get namespace as part of file path relatively to entry path
+        $nameSpace = rtrim(ltrim(
+            str_replace(
+                '/',
+                '\\',
+                str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME))
+            ),
+            '\\'
+        ), '\\');
+
+        return array($className, $this->namespacePrefix.$nameSpace);
     }
 
     /**
@@ -59,6 +102,7 @@ class Generator
     {
         $metadata = new Metadata();
         $metadata->path = $file;
+
         // Use PHP tokenizer to find variables
         foreach ($tokens = token_get_all(file_get_contents($file)) as $idx => $token) {
             if (!is_string($token) && $token[0] === T_VARIABLE) {
@@ -77,11 +121,16 @@ class Generator
             }
         }
 
-        var_dump($metadata);
+        return $metadata;
     }
 
-    public function generate(Metadata $metadata)
+    protected function generateViewClass(Metadata $metadata, $path)
     {
+        $this->generator
+            ->defnamespace($metadata->namespace)
+            ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
+            ->defClass($metadata->className, View::class)
+        ;
         //$navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\query\Entity'
 //        $this->generator
 //            ->multiComment(array('Class for fetching "'.$metadata->entityRealName.'" instances from database'))
@@ -113,5 +162,13 @@ class Generator
 //            ->endClass()
 //            ->flush()
 //            ;
+        file_put_contents($path.'/'.$metadata->className.'.php', '<?php'.$this->generator->endClass()->flush());
+    }
+
+    public function generate($path = __DIR__)
+    {
+        foreach ($this->metadata as $metadata) {
+            $this->generateViewClass($metadata, $path);
+        }
     }
 }
