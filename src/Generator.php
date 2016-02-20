@@ -20,6 +20,7 @@ namespace samsonframework\view;
  * TODO: If a variable is used in foreach - this is an array or Iteratable ancestor - we can add typehint automatically
  * TODO: Analyze view file php doc comments to get variable types
  * TODO: If a token variable is not $this and has "->" - this is object, maybe type-hint needs to be added.
+ * TODO: Add caching logic to avoid duplicate file reading
  *
  * @package samsonframework\view
  */
@@ -74,35 +75,10 @@ class Generator
     }
 
     /**
-     * Generic class name and its name space generator.
-     *
-     * @param string $file Full path to view file
-     * @param string $entryPath Entry path
-     *
-     * @return array Class name[0] and namespace[1]
-     */
-    protected function generateClassName($file, $entryPath)
-    {
-        // Get only file name as a class name with suffix
-        $className = pathinfo($file, PATHINFO_FILENAME).self::VIEW_CLASSNAME_SUFFIX;
-
-        // Get namespace as part of file path relatively to entry path
-        $nameSpace = rtrim(ltrim(
-            str_replace(
-                '/',
-                '\\',
-                str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME))
-            ),
-            '\\'
-        ), '\\');
-
-        return array($className, rtrim($this->namespacePrefix.$nameSpace, '\\'));
-    }
-
-    /**
      * Analyze view file and create its metadata.
      *
      * @param string $file Path to view file
+     *
      * @return Metadata View file metadata
      */
     public function analyze($file)
@@ -118,10 +94,10 @@ class Generator
                 // Store variable name
                 $variableName = ltrim($token[1], '$');
                 // If next token is object operator
-                if ($tokens[$idx+1][0] === T_OBJECT_OPERATOR) {
-                    $variableName = $tokens[$idx+2][1];
+                if ($tokens[$idx + 1][0] === T_OBJECT_OPERATOR) {
+                    $variableName = $tokens[$idx + 2][1];
                     // And two more tokens
-                    $variableText .= $tokens[$idx+1][1].$variableName;
+                    $variableText .= $tokens[$idx + 1][1] . $variableName;
                 }
                 // Store view variable key - actual object name => full varaible usage
                 $metadata->variables[$variableName] = $variableText;
@@ -132,26 +108,36 @@ class Generator
     }
 
     /**
-     * Generate constructor for application class.
+     * Generic class name and its name space generator.
      *
-     * @param string $variable View variable name
+     * @param string $file      Full path to view file
+     * @param string $entryPath Entry path
      *
-     * @return string View variable setter method
+     * @return array Class name[0] and namespace[1]
      */
-    protected function generateViewVariableSetter($variable)
+    protected function generateClassName($file, $entryPath)
     {
-        $class = "\n\t".'/**';
-        $class .= "\n\t".' * Setter for '.$variable.' view variable';
-        $class .= "\n\t".' *';
-        $class .= "\n\t".' * @param mixed $value View variable value';
-        $class .= "\n\t".' * @return $this Chaining';
-        $class .= "\n\t".' */';
-        $class .= "\n\t".'public function '.$variable.'($value)';
-        $class .= "\n\t".'{';
-        $class .= "\n\t\t".'return parent::set($value, \''.$variable.'\');';
-        $class .= "\n\t".'}'."\n";
+        // Get only file name as a class name with suffix
+        $className = pathinfo($file, PATHINFO_FILENAME) . self::VIEW_CLASSNAME_SUFFIX;
 
-        return $class;
+        // Get namespace as part of file path relatively to entry path
+        $nameSpace = rtrim(ltrim(
+            str_replace(
+                '/',
+                '\\',
+                str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME))
+            ),
+            '\\'
+        ), '\\');
+
+        return array($className, rtrim($this->namespacePrefix . $nameSpace, '\\'));
+    }
+
+    public function generate($path = __DIR__)
+    {
+        foreach ($this->metadata as $metadata) {
+            $this->generateViewClass($metadata, $path);
+        }
     }
 
     protected function generateViewClass(Metadata $metadata, $path)
@@ -180,10 +166,26 @@ class Generator
         );
     }
 
-    public function generate($path = __DIR__)
+    /**
+     * Generate constructor for application class.
+     *
+     * @param string $variable View variable name
+     *
+     * @return string View variable setter method
+     */
+    protected function generateViewVariableSetter($variable)
     {
-        foreach ($this->metadata as $metadata) {
-            $this->generateViewClass($metadata, $path);
-        }
+        $class = "\n\t" . '/**';
+        $class .= "\n\t" . ' * Setter for ' . $variable . ' view variable';
+        $class .= "\n\t" . ' *';
+        $class .= "\n\t" . ' * @param mixed $value View variable value';
+        $class .= "\n\t" . ' * @return $this Chaining';
+        $class .= "\n\t" . ' */';
+        $class .= "\n\t" . 'public function ' . $variable . '($value)';
+        $class .= "\n\t" . '{';
+        $class .= "\n\t\t" . 'return parent::set($value, \'' . $variable . '\');';
+        $class .= "\n\t" . '}' . "\n";
+
+        return $class;
     }
 }
