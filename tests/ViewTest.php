@@ -80,4 +80,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(strpos($rendered, get_class($object)) !== false);
         $this->assertTrue(strpos($rendered, (string)$view->numericValue) !== false);
     }
+
+    public function testCall()
+    {
+        $object = new TestRenderInterfaceObject();
+
+        $view = new View();
+        $view->testObject($object);
+
+        $this->assertEquals(get_class($object), $view->testObjectClassName);
+    }
 }

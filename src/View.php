@@ -129,4 +129,20 @@ class View implements ViewInterface
             throw new VariableKeyNotFound($name);
         }
     }
+
+    /**
+     * Magic method for setting view variables.
+     *
+     * @param string $name Variable key
+     * @param array $arguments Variable value
+     *
+     * @return $this Chaining
+     * @throws VariableKeyNotFound
+     */
+    public function __call($name, $arguments)
+    {
+        if (count($arguments)) {
+            $this->set($arguments[0], $name);
+        }
+    }
 }
