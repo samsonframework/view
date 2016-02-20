@@ -103,6 +103,9 @@ class View implements ViewInterface
         // Start buffering
         ob_start();
 
+        // Make variables accessible directly in view
+        extract($this->data);
+
         // Render view file
         include($this->file);
 

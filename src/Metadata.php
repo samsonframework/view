@@ -19,7 +19,7 @@ class Metadata
     public $namespace;
 
     /** @var array Collection of view file used variables */
-    public $variables;
+    public $variables = array();
 
     /** @var string Full path to file */
     public $path;

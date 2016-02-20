@@ -14,6 +14,7 @@ namespace samsonframework\view;
  * members for every variable used inside with chainable setter for this field,
  * to help IDE and developer in creating awesome code.
  *
+ * TODO: Somehow know view variable type(typehint??) and add comments and typehints to generated classes.
  * @package samsonframework\view
  */
 class Generator
@@ -89,7 +90,7 @@ class Generator
             '\\'
         ), '\\');
 
-        return array($className, $this->namespacePrefix.$nameSpace);
+        return array($className, rtrim($this->namespacePrefix.$nameSpace, '\\'));
     }
 
     /**
@@ -124,45 +125,53 @@ class Generator
         return $metadata;
     }
 
+    /**
+     * Generate constructor for application class.
+     *
+     * @param string $variable View variable name
+     *
+     * @return string View variable setter method
+     */
+    protected function generateViewVariableSetter($variable)
+    {
+        $class = "\n\t".'/**';
+        $class .= "\n\t".' * Setter for '.$variable.' view variable';
+        $class .= "\n\t".' *';
+        $class .= "\n\t".' * @param mixed $value View variable value';
+        $class .= "\n\t".' * @return $this Chaining';
+        $class .= "\n\t".' */';
+        $class .= "\n\t".'public function '.$variable.'($value)';
+        $class .= "\n\t".'{';
+        $class .= "\n\t\t".'return parent::set($value, \''.$variable.'\');';
+        $class .= "\n\t".'}'."\n";
+
+        return $class;
+    }
+
     protected function generateViewClass(Metadata $metadata, $path)
     {
         $this->generator
-            ->defnamespace($metadata->namespace)
+            ->defNamespace($metadata->namespace)
             ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
-            ->defClass($metadata->className, View::class)
+            ->defClass($metadata->className, '\\'.View::class)
+            ->commentVar('string', 'Path to view file')
+            ->defClassVar('$path', 'protected', $metadata->path)
+            ->commentVar('array', 'Collection of view variables')
+            ->defClassVar('$variables', 'public static', array_keys($metadata->variables));
         ;
-        //$navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\query\Entity'
-//        $this->generator
-//            ->multiComment(array('Class for fetching "'.$metadata->entityRealName.'" instances from database'))
-//            ->defClass($metadata->entity.$suffix, $defaultParent)
-//        ;
-//
-//        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
-//
-//        }
-//
-//        return $this->generator
-//            ->commentVar('array', 'Collection of real additional field names')
-//            ->defClassVar('$fieldRealNames', 'public static', $metadata->realNames)
-//            ->commentVar('array', 'Collection of additional field names')
-//            ->defClassVar('$fieldNames', 'public static', $metadata->allFieldNames)
-//            // TODO: two above fields should be protected
-//            ->commentVar('array', 'Collection of navigation identifiers')
-//            ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
-//            ->commentVar('string', 'Entity full class name')
-//            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($metadata->entity, $namespace))
-//            ->commentVar('array', 'Collection of localized additional fields identifiers')
-//            ->defClassVar('$localizedFieldIDs', 'protected static', $metadata->localizedFieldIDs)
-//            ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
-//            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $metadata->notLocalizedFieldIDs)
-//            ->commentVar('array', 'Collection of localized additional fields identifiers')
-//            ->defClassVar('$fieldIDs', 'protected static', $metadata->allFieldIDs)
-//            ->commentVar('array', 'Collection of additional fields value column names')
-//            ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns)
-//            ->endClass()
-//            ->flush()
-//            ;
-        file_put_contents($path.'/'.$metadata->className.'.php', '<?php'.$this->generator->endClass()->flush());
+
+        // Iterate all view variables
+        foreach ($metadata->variables as $name => $test) {
+            $this->generator
+                ->commentVar('mixed', 'View variable')
+                ->defClassVar('$'.$name, 'public')
+                ->text($this->generateViewVariableSetter($name));
+        }
+
+        file_put_contents(
+            $path.'/'.$metadata->className.'.php',
+            '<?php'.$this->generator->endClass()->flush()
+        );
     }
 
     public function generate($path = __DIR__)

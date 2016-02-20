@@ -5,4 +5,6 @@
  */
 ?>
 <h1>Test view <?=$this->testObjectClassName?></h1>
+<h1>Test view <?=$testObjectClassName?></h1>
 <input type="number" value="<?=$this->numericValue?>">
+<input type="number" value="<?=$numericValue?>">
