@@ -12,6 +12,7 @@
     }
   ],
   "require": {
+    "samsonframework/base": "*",
     "samsonphp/generator": "*"
   },
   "require-dev": {

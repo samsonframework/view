@@ -1,0 +1,8 @@
+<?php
+/**
+ * Created by Vitaly Iegorov <egorov@samsonos.com>.
+ * on 20.02.16 at 13:52
+ */
+?>
+<h1>Test view <?=$this->testObjectClassName?></h1>
+<input type="number" value="<?=$this->numericValue?>">
