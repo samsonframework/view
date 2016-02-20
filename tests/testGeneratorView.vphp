@@ -6,3 +6,4 @@
 ?>
 <h1>Test view <?=$this->testObjectClassName?></h1>
 <input type="number" value="<?=$this->numericValue?>">
+<span><?=$notExists?></span>

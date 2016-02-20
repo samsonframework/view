@@ -16,6 +16,9 @@ use samsonframework\view\exception\ViewFileNotFound;
  */
 class View implements ViewInterface
 {
+    /** Default view file extension */
+    const DEFAULT_EXT = 'vphp';
+
     /** @var array Collection of $key => $value view data */
     protected $data = array();
 
