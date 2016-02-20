@@ -166,7 +166,7 @@ class Generator
         ;
 
         // Iterate all view variables
-        foreach ($metadata->variables as $name => $test) {
+        foreach (array_keys($metadata->variables) as $name => $test) {
             $this->generator
                 ->commentVar('mixed', 'View variable')
                 ->defClassVar('$'.$name, 'public')
