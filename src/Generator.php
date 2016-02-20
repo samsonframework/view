@@ -14,6 +14,7 @@ namespace samsonframework\view;
  * members for every variable used inside with chainable setter for this field,
  * to help IDE and developer in creating awesome code.
  *
+ * TODO: Check for reserved keywords(like list) in namespaces
  * TODO: Somehow know view variable type(typehint??) and add comments and type-hints to generated classes.
  * TODO: Clever analysis for foreach, if, and so on language structures,
  * TODO: If a variable is used in foreach - this is an array or Iteratable ancestor - we can add typehint automatically
