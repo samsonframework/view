@@ -16,12 +16,11 @@ namespace samsonframework\view;
  *
  * TODO: Check for reserved keywords(like list) in namespaces
  * TODO: Somehow know view variable type(typehint??) and add comments and type-hints to generated classes.
- * TODO: Clever analysis for foreach, if, and so on language structures,
+ * TODO: Clever analysis for foreach, if, and so on language structures, we do not need to create variables for loop iterator.
  * TODO: If a variable is used in foreach - this is an array or Iteratable ancestor - we can add typehint automatically
  * TODO: Analyze view file php doc comments to get variable types
  * TODO: If a token variable is not $this and has "->" - this is object, maybe type-hint needs to be added.
  * TODO: Add caching logic to avoid duplicate file reading
- * TODO: Store relative path instead of full one
  *
  * @package samsonframework\view
  */
@@ -130,6 +129,11 @@ class Generator
             ),
             '\\'
         ), '\\');
+
+        // Remove reserved keywords from namespace
+        $nameSpace = str_replace(array(
+            '\list'
+        ), '', $nameSpace);
 
         return array($className, rtrim($this->namespacePrefix . $nameSpace, '\\'));
     }
