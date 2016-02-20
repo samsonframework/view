@@ -4,6 +4,7 @@
  * on 18.02.16 at 14:17
  */
 namespace samsonframework\view;
+use samsonframework\view\exception\GeneratedViewPathHasReservedWord;
 
 /**
  * Views generator, this class scans resource for view files and creates
@@ -28,6 +29,11 @@ class Generator
 {
     /** string All generated view classes will end with this suffix */
     const VIEW_CLASSNAME_SUFFIX = 'View';
+
+    /** @var array Collection of PHP reserved words */
+    protected static $reservedWords = array(
+        'list'
+    );
 
     /** @var Metadata[] Collection of view metadata */
     protected $metadata = array();
@@ -130,11 +136,14 @@ class Generator
             '\\'
         ), '\\');
 
-        // Remove reserved keywords from namespace
-        $nameSpace = str_replace(array(
-            '\list'
-        ), '', $nameSpace);
+        // Check generated namespaces
+        foreach (static::$reservedWords as $reserverWord) {
+            if (strpos($nameSpace, '\\' . $reserverWord) !== false) {
+                throw new GeneratedViewPathHasReservedWord($reserverWord);
+            }
+        }
 
+        // Return collection for further usage
         return array($className, rtrim($this->namespacePrefix . $nameSpace, '\\'));
     }
 
