@@ -19,6 +19,9 @@ class View implements ViewInterface
     /** Default view file extension */
     const DEFAULT_EXT = 'vphp';
 
+    /** @deprecated Class name for old PHP versions */
+    const CLASSNAME = __CLASS__;
+
     /** @var array Collection of $key => $value view data */
     protected $data = array();
 
@@ -27,38 +30,6 @@ class View implements ViewInterface
 
     /** @var string Rendered view contents */
     protected $output;
-
-    /**
-     * Set view variable.
-     *
-     * Passing an array as $value will add array key => values into current
-     * view data collection. If $key is passed then an array variable with this
-     * key will be added to view data collection beside adding array key => values.
-     *
-     * @param mixed       $value Variable value
-     * @param string|null $key   Variable key\prefix for objects and arrays
-     *
-     * @return $this Chaining
-     */
-    public function set($value, $key = null)
-    {
-        // RenderInterface implementation
-        if (is_object($value) && is_a($value, RenderInterface::class)) {
-            /** @var RenderInterface $value */
-            // Generate objects view array data and merge it with view data
-            $this->data = array_merge(
-                $this->data,
-                $value->toView(null !== $key ? $key : get_class($value))
-            );
-        } elseif (is_array($value)) { // Merge array into view data
-            $this->data = array_merge($this->data, $value);
-        }
-
-        // Store key value
-        $this->data[$key] = $value;
-
-        return $this;
-    }
 
     /**
      * Set current view for rendering.
@@ -139,8 +110,8 @@ class View implements ViewInterface
     /**
      * Magic method for setting view variables.
      *
-     * @param string $name Variable key
-     * @param array $arguments Variable value
+     * @param string $name      Variable key
+     * @param array  $arguments Variable value
      *
      * @return $this Chaining
      * @throws VariableKeyNotFound
@@ -150,6 +121,38 @@ class View implements ViewInterface
         if (count($arguments)) {
             $this->set($arguments[0], $name);
         }
+
+        return $this;
+    }
+
+    /**
+     * Set view variable.
+     *
+     * Passing an array as $value will add array key => values into current
+     * view data collection. If $key is passed then an array variable with this
+     * key will be added to view data collection beside adding array key => values.
+     *
+     * @param mixed       $value Variable value
+     * @param string|null $key   Variable key\prefix for objects and arrays
+     *
+     * @return $this Chaining
+     */
+    public function set($value, $key = null)
+    {
+        // RenderInterface implementation
+        if (is_object($value) && is_a($value, RenderInterface::class)) {
+            /** @var RenderInterface $value */
+            // Generate objects view array data and merge it with view data
+            $this->data = array_merge(
+                $this->data,
+                $value->toView(null !== $key ? $key : get_class($value))
+            );
+        } elseif (is_array($value)) { // Merge array into view data
+            $this->data = array_merge($this->data, $value);
+        }
+
+        // Store key value
+        $this->data[$key] = $value;
 
         return $this;
     }

@@ -59,9 +59,9 @@ class Generator
     /**
      * Recursively scan path for files with specified extensions.
      *
+     * @param string $sourcepath Entry point path
      * @param string $path       Entry path for scanning
      * @param array  $extensions Collection of file extensions without dot
-     * @param string $sourcepath Entry point path
      */
     public function scan($sourcepath, array $extensions = array(View::DEFAULT_EXT), $path = null)
     {
@@ -161,7 +161,7 @@ class Generator
         $this->generator
             ->defNamespace($metadata->namespace)
             ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
-            ->defClass($metadata->className, '\\'.View::class)
+            ->defClass($metadata->className, '\\' . View::CLASSNAME)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$path', 'protected', $metadata->path)
             ->commentVar('array', 'Collection of view variables')
