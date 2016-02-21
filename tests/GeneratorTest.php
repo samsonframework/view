@@ -23,5 +23,6 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $generator = new Generator(new \samsonphp\generator\Generator(), '\test\view\\');
 
         $generator->scan(__DIR__);
+        $generator->generate(__DIR__.'/generated');
     }
 }

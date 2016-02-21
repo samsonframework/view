@@ -32,9 +32,7 @@ class Generator
     const VIEW_CLASSNAME_SUFFIX = 'View';
 
     /** @var array Collection of PHP reserved words */
-    protected static $reservedWords = array(
-        'list'
-    );
+    protected static $reservedWords = array('list');
 
     /** @var Metadata[] Collection of view metadata */
     protected $metadata = array();
@@ -47,6 +45,12 @@ class Generator
 
     /** @var string Collection of namespace parts to be ignored in generated namespaces */
     protected $ignoreNamespace = array();
+
+    /** @var array Collection of view files */
+    protected $files;
+
+    /** @var string Scanning entry path */
+    protected $entryPath;
 
     /**
      * Generator constructor.
@@ -91,6 +95,8 @@ class Generator
      */
     public function scan($source, array $extensions = array(View::DEFAULT_EXT), $path = null)
     {
+        $this->entryPath = $source;
+
         $path = isset($path) ? $path : $source;
 
         // Recursively go deeper into inner folders for scanning
@@ -102,10 +108,7 @@ class Generator
         // Iterate file extensions
         foreach ($extensions as $extension) {
             foreach (glob(rtrim($path, '/') . '/*.'.$extension) as $file) {
-                $this->metadata[$file] = $this->analyze($file);
-                $this->metadata[$file]->path = str_replace($source, '', $file);
-                list($this->metadata[$file]->className,
-                    $this->metadata[$file]->namespace) = $this->generateClassName($file, $source);
+                $this->files[str_replace($source, '', $file)] = $file;
             }
         }
     }
@@ -186,6 +189,13 @@ class Generator
      */
     public function generate($path = __DIR__)
     {
+        foreach ($this->files as $relativePath => $absolutePath) {
+            $this->metadata[$absolutePath] = $this->analyze($absolutePath);
+            $this->metadata[$absolutePath]->path = $relativePath;
+            list($this->metadata[$absolutePath]->className,
+                $this->metadata[$absolutePath]->namespace) = $this->generateClassName($absolutePath, $this->entryPath);
+        }
+
         foreach ($this->metadata as $metadata) {
             $this->generateViewClass($metadata, $path);
         }
