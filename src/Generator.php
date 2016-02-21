@@ -245,10 +245,11 @@ class Generator
             ->defClass($metadata->className, '\\' . View::class)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$file', 'protected', $metadata->path)
-            ->commentVar('array', 'Collection of view variables')
-            ->defClassVar('$variables', 'public static', array_keys($metadata->variables))
-            ->commentVar('array', 'Collection of view variable types')
-            ->defClassVar('$types', 'public static', $metadata->types);
+            //->commentVar('array', 'Collection of view variables')
+            //->defClassVar('$variables', 'public static', array_keys($metadata->variables))
+            //->commentVar('array', 'Collection of view variable types')
+            //->defClassVar('$types', 'public static', $metadata->types)
+        ;
 
         // Iterate all view variables
         foreach (array_keys($metadata->variables) as $name) {
