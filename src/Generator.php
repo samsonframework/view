@@ -59,27 +59,27 @@ class Generator
     /**
      * Recursively scan path for files with specified extensions.
      *
-     * @param string $sourcepath Entry point path
+     * @param string $source     Entry point path
      * @param string $path       Entry path for scanning
      * @param array  $extensions Collection of file extensions without dot
      */
-    public function scan($sourcepath, array $extensions = array(View::DEFAULT_EXT), $path = null)
+    public function scan($source, array $extensions = array(View::DEFAULT_EXT), $path = null)
     {
-        $path = isset($path) ? $path : $sourcepath;
+        $path = isset($path) ? $path : $source;
 
         // Recursively go deeper into inner folders for scanning
         $folders  = glob($path.'/*', GLOB_ONLYDIR);
         foreach ($folders as $folder) {
-            $this->scan($folder, $extensions, $sourcepath);
+            $this->scan($source, $extensions, $folder);
         }
 
         // Iterate file extensions
         foreach ($extensions as $extension) {
             foreach (glob(rtrim($path, '/') . '/*.'.$extension) as $file) {
                 $this->metadata[$file] = $this->analyze($file);
-                $this->metadata[$file]->path = str_replace($sourcepath, '', $file);
+                $this->metadata[$file]->path = str_replace($source, '', $file);
                 list($this->metadata[$file]->className,
-                    $this->metadata[$file]->namespace) = $this->generateClassName($file, $sourcepath);
+                    $this->metadata[$file]->namespace) = $this->generateClassName($file, $source);
             }
         }
     }
@@ -122,6 +122,7 @@ class Generator
      * @param string $entryPath Entry path
      *
      * @return array Class name[0] and namespace[1]
+     * @throws GeneratedViewPathHasReservedWord
      */
     protected function generateClassName($file, $entryPath)
     {

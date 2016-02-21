@@ -1,12 +1,12 @@
 <?php
-namespace test\view;
+namespace test\view\collection;
 
-/** Class for view "/index.vphp" rendering */
+/** Class for view "/collection/index.vphp" rendering */
 class indexView extends \samsonframework\view\View
 {
     /** @var array Collection of view variables */
     public static $variables = array();
     /** @var string Path to view file */
-    protected $path = '/index.vphp';
-
+    protected $path = '/collection/index.vphp';
+    
 }
