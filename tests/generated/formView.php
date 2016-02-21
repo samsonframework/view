@@ -10,8 +10,9 @@ class formView extends \samsonframework\view\View
         '1' => 'surname',
         '2' => 'email',
         '3' => 'number',
-        '4' => 'places',
-        '5' => 'place',
+        '4' => 'header',
+        '5' => 'places',
+        '6' => 'place',
     );
     /** @var mixed View variable */
     public $name;
@@ -21,6 +22,8 @@ class formView extends \samsonframework\view\View
     public $email;
     /** @var mixed View variable */
     public $number;
+    /** @var mixed View variable */
+    public $header;
     /** @var mixed View variable */
     public $places;
     /** @var mixed View variable */
@@ -70,6 +73,18 @@ class formView extends \samsonframework\view\View
     public function number($value)
     {
         return parent::set($value, 'number');
+    }
+
+    /**
+     * Setter for header view variable
+     *
+     * @param mixed $value View variable value
+     *
+     * @return $this Chaining
+     */
+    public function header($value)
+    {
+        return parent::set($value, 'header');
     }
 
     /**
