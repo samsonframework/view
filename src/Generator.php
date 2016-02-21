@@ -4,6 +4,7 @@
  * on 18.02.16 at 14:17
  */
 namespace samsonframework\view;
+
 use samsonframework\view\exception\GeneratedViewPathHasReservedWord;
 
 /**
@@ -127,7 +128,7 @@ class Generator
     protected function generateClassName($file, $entryPath)
     {
         // Get only file name as a class name with suffix
-        $className = pathinfo($file, PATHINFO_FILENAME) . self::VIEW_CLASSNAME_SUFFIX;
+        $className = ucfirst(pathinfo($file, PATHINFO_FILENAME) . self::VIEW_CLASSNAME_SUFFIX);
 
         // Get namespace as part of file path relatively to entry path
         $nameSpace = rtrim(ltrim(
@@ -140,9 +141,9 @@ class Generator
         ), '\\');
 
         // Check generated namespaces
-        foreach (static::$reservedWords as $reserverWord) {
-            if (strpos($nameSpace, '\\' . $reserverWord) !== false) {
-                throw new GeneratedViewPathHasReservedWord($reserverWord);
+        foreach (static::$reservedWords as $reservedWord) {
+            if (strpos($nameSpace, '\\' . $reservedWord) !== false) {
+                throw new GeneratedViewPathHasReservedWord($file.'('.$reservedWord.')');
             }
         }
 
@@ -150,6 +151,11 @@ class Generator
         return array($className, rtrim($this->namespacePrefix . $nameSpace, '\\'));
     }
 
+    /**
+     * Generate view classes.
+     *
+     * @param string $path Entry path for generated classes and folders
+     */
     public function generate($path = __DIR__)
     {
         foreach ($this->metadata as $metadata) {
@@ -157,6 +163,12 @@ class Generator
         }
     }
 
+    /**
+     * Create View class ancestor.
+     *
+     * @param Metadata $metadata View file metadata
+     * @param string   $path Entry path for generated classes and folders
+     */
     protected function generateViewClass(Metadata $metadata, $path)
     {
         $this->generator
@@ -174,6 +186,12 @@ class Generator
                 ->commentVar('mixed', 'View variable')
                 ->defClassVar('$'.$name, 'public')
                 ->text($this->generateViewVariableSetter($name));
+        }
+
+        // Iterate namespace and create folder structure
+        $path .= '/'.str_replace('\\', '/', $metadata->namespace);
+        if (!is_dir($path)) {
+            mkdir($path, 0775, true);
         }
 
         file_put_contents(
