@@ -266,7 +266,7 @@ class Generator
                 ->defClassVar('$'.$name, 'public'.$static);
 
             // Do not generate setters for static variables
-            if ($static !== 'static') {
+            if ($static !== ' static') {
                 $this->generator->text($this->generateViewVariableSetter(
                     $name,
                     $metadata->originalVariables[$name],
