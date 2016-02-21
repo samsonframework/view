@@ -141,12 +141,7 @@ class View implements ViewInterface
     {
         // RenderInterface implementation
         if (is_object($value) && is_a($value, 'samsonframework\core\RenderInterface')) {
-            /** @var RenderInterface $value */
-            // Generate objects view array data and merge it with view data
-            $this->data = array_merge(
-                $this->data,
-                $value->toView(null !== $key ? $key : get_class($value))
-            );
+            $this->setRenderableObject($value, $key);
         } elseif (is_array($value)) { // Merge array into view data
             $this->data = array_merge($this->data, $value);
         }
@@ -155,5 +150,21 @@ class View implements ViewInterface
         $this->data[$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * Set renderable object as view variable.
+     *
+     * @param mixed       $object Object instance for rendering
+     * @param string|null $key    Variable key\prefix for objects and arrays
+     */
+    protected function setRenderableObject($object, $key)
+    {
+        /** @var RenderInterface $object */
+        // Generate objects view array data and merge it with view data
+        $this->data = array_merge(
+            $this->data,
+            $object->toView(null !== $key ? $key : get_class($object))
+        );
     }
 }

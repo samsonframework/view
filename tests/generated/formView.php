@@ -32,7 +32,6 @@ class formView extends \samsonframework\view\View
      * Setter for name view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function name($value)
@@ -44,7 +43,6 @@ class formView extends \samsonframework\view\View
      * Setter for surname view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function surname($value)
@@ -56,7 +54,6 @@ class formView extends \samsonframework\view\View
      * Setter for email view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function email($value)
@@ -68,7 +65,6 @@ class formView extends \samsonframework\view\View
      * Setter for number view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function number($value)
@@ -80,7 +76,6 @@ class formView extends \samsonframework\view\View
      * Setter for places view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function places($value)
@@ -92,7 +87,6 @@ class formView extends \samsonframework\view\View
      * Setter for place view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function place($value)

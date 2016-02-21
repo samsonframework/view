@@ -20,7 +20,6 @@ class testViewView extends \samsonframework\view\View
      * Setter for testObjectClassName view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function testObjectClassName($value)
@@ -32,7 +31,6 @@ class testViewView extends \samsonframework\view\View
      * Setter for numericValue view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function numericValue($value)

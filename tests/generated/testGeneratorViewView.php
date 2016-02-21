@@ -23,7 +23,6 @@ class testGeneratorViewView extends \samsonframework\view\View
      * Setter for testObjectClassName view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function testObjectClassName($value)
@@ -35,7 +34,6 @@ class testGeneratorViewView extends \samsonframework\view\View
      * Setter for numericValue view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function numericValue($value)
@@ -47,7 +45,6 @@ class testGeneratorViewView extends \samsonframework\view\View
      * Setter for notExists view variable
      *
      * @param mixed $value View variable value
-     *
      * @return $this Chaining
      */
     public function notExists($value)
