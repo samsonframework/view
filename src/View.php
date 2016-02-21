@@ -140,7 +140,7 @@ class View implements ViewInterface
     public function set($value, $key = null)
     {
         // RenderInterface implementation
-        if (is_object($value) && is_a($value, RenderInterface::class)) {
+        if (is_object($value) && is_a($value, 'samsonframework\core\RenderInterface')) {
             /** @var RenderInterface $value */
             // Generate objects view array data and merge it with view data
             $this->data = array_merge(
