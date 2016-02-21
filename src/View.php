@@ -52,11 +52,10 @@ class View implements ViewInterface
     {
         if (file_exists($pathPattern)) {
             $this->file = $pathPattern;
-        } else {
-            throw new ViewFileNotFound($pathPattern);
+            return $this;
         }
 
-        return $this;
+        throw new ViewFileNotFound($pathPattern);
     }
 
     /**
@@ -99,9 +98,9 @@ class View implements ViewInterface
     {
         if (array_key_exists($name, $this->data)) {
             return $this->data[$name];
-        } else {
-            throw new VariableKeyNotFound($name);
         }
+
+        throw new VariableKeyNotFound($name);
     }
 
     /**
