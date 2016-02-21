@@ -23,6 +23,8 @@ use samsonframework\view\exception\GeneratedViewPathHasReservedWord;
  * TODO: Analyze view file php doc comments to get variable types
  * TODO: If a token variable is not $this and has "->" - this is object, maybe type-hint needs to be added.
  * TODO: Add caching logic to avoid duplicate file reading
+ * TODO: Do not generate class fields with empty values
+ * TODO: Generate constants with field names
  *
  * @package samsonframework\view
  */
