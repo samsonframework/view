@@ -287,13 +287,16 @@ class Generator
      */
     protected function generateViewVariableSetter($variable, $original, $type = 'mixed')
     {
+        // Define type hint
+        $typeHint = $type !== 'mixed' && $type !== 'string' ? $type : '';
+
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * Setter for ' . $variable . ' view variable';
         $class .= "\n\t" . ' *';
         $class .= "\n\t" . ' * @param '.$type.' $value View variable value';
         $class .= "\n\t" . ' * @return $this Chaining';
         $class .= "\n\t" . ' */';
-        $class .= "\n\t" . 'public function ' . $variable . '($value)';
+        $class .= "\n\t" . 'public function ' . $variable . '('.$typeHint.'$value)';
         $class .= "\n\t" . '{';
         $class .= "\n\t\t" . 'return parent::set($value, \'' . $original . '\');';
         $class .= "\n\t" . '}' . "\n";
