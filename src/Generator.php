@@ -47,7 +47,7 @@ class Generator
     protected $ignoreNamespace = array();
 
     /** @var array Collection of view files */
-    protected $files;
+    protected $files = array();
 
     /** @var string Scanning entry path */
     protected $entryPath;
