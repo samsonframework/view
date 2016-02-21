@@ -227,7 +227,7 @@ class Generator
             ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
             ->defClass($metadata->className, '\\' . View::class)
             ->commentVar('string', 'Path to view file')
-            ->defClassVar('$path', 'protected', $metadata->path)
+            ->defClassVar('$file', 'protected', $metadata->path)
             ->commentVar('array', 'Collection of view variables')
             ->defClassVar('$variables', 'public static', array_keys($metadata->variables));
 
