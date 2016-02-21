@@ -45,15 +45,20 @@ class Generator
     /** @var string Generated classes namespace prefix */
     protected $namespacePrefix;
 
+    /** @var string Collection of namespace parts to be ignored in generated namespaces */
+    protected $ignoreNamespace = array();
+
     /**
      * Generator constructor.
      *
      * @param \samsonphp\generator\Generator $generator
-     * @param string                               $namespacePrefix
+     * @param string                         $namespacePrefix
+     * @param array                          $ignoreNamespace
      */
-    public function __construct(\samsonphp\generator\Generator $generator, $namespacePrefix)
+    public function __construct(\samsonphp\generator\Generator $generator, $namespacePrefix, array $ignoreNamespace = array())
     {
         $this->generator = $generator;
+        $this->ignoreNamespace = $ignoreNamespace;
         $this->namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\').'\\';
     }
 
@@ -159,6 +164,9 @@ class Generator
             ),
             '\\'
         ), '\\');
+
+        // Remove ignored parts from namespaces
+        $nameSpace = str_replace($this->ignoreNamespace, '', $nameSpace);
 
         // Check generated namespaces
         foreach (static::$reservedWords as $reservedWord) {
