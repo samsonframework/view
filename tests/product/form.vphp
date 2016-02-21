@@ -4,9 +4,10 @@
  * on 20.02.16 at 15:47
  */
 /** @var integer $number */
+/** @var \samsonframework\view\tests\TestObject $product */
 ?>
 <form>
-    <label>Name:</label><input value="<?= $name?>">
+    <label>Name:</label><input value="<?= $product->stringField ?>">
     <label>Surname:</label><input value="<?= $surname?>">
     <label>Email:</label><input type="email" value="<?= $email?>">
     <label>Size:</label><input type="number" value="<?= $number?>">

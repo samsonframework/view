@@ -134,14 +134,29 @@ class Generator
                 $variableName = ltrim($token[1], '$');
                 // If next token is object operator
                 if ($tokens[$idx + 1][0] === T_OBJECT_OPERATOR) {
-                    $variableName = $tokens[$idx + 2][1];
+                    // Ignore $this
+                    if ($variableName === 'this') {
+                        continue;
+                    }
+
                     // And two more tokens
-                    $variableText .= $tokens[$idx + 1][1] . $variableName;
+                    $variableText .= $tokens[$idx + 1][1] . $tokens[$idx + 2][1];
+
+                    // Store object variable
+                    $metadata->variables[$this->changeName($variableName)] = $variableText;
+                    // Store view variable key - actual object name => full variable usage
+                    $metadata->originalVariables[$this->changeName($variableName)] = $variableName;
+                } else {
+                    // Store original variable name
+                    $metadata->originalVariables[$this->changeName($variableName)] = $variableName;
+                    // Store view variable key - actual object name => full variable usage
+                    $metadata->variables[$this->changeName($variableName)] = $variableText;
                 }
-                // Store original variable name
-                $metadata->originalVariables[$this->changeName($variableName)] = $variableName;
-                // Store view variable key - actual object name => full varaible usage
-                $metadata->variables[$this->changeName($variableName)] = $variableText;
+            } elseif ($token[0] === T_DOC_COMMENT) { // Match doc block comments
+                // Parse variable type and name
+                if (preg_match('/@var\s+(?<type>[^ ]+)\s+(?<variable>[^*]+)/', $token[1], $matches)) {
+                    $metadata->types[substr(trim($matches['variable']), 1)] = $matches['type'];
+                }
             }
         }
 
@@ -231,14 +246,21 @@ class Generator
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$file', 'protected', $metadata->path)
             ->commentVar('array', 'Collection of view variables')
-            ->defClassVar('$variables', 'public static', array_keys($metadata->variables));
+            ->defClassVar('$variables', 'public static', array_keys($metadata->variables))
+            ->commentVar('array', 'Collection of view variable types')
+            ->defClassVar('$types', 'public static', $metadata->types);
 
         // Iterate all view variables
         foreach (array_keys($metadata->variables) as $name) {
+            $type = array_key_exists($name, $metadata->types) ? $metadata->types[$name] : 'mixed';
             $this->generator
-                ->commentVar('mixed', 'View variable')
+                ->commentVar($type, 'View variable')
                 ->defClassVar('$'.$name, 'public')
-                ->text($this->generateViewVariableSetter($name, $metadata->originalVariables[$name]));
+                ->text($this->generateViewVariableSetter(
+                    $name,
+                    $metadata->originalVariables[$name],
+                    $type
+                ));
         }
 
         // Iterate namespace and create folder structure
@@ -257,17 +279,17 @@ class Generator
      * Generate constructor for application class.
      *
      * @param string $variable View variable name
-     *
      * @param string $original Original view variable name
+     * @param string $type Variable type
      *
      * @return string View variable setter method
      */
-    protected function generateViewVariableSetter($variable, $original)
+    protected function generateViewVariableSetter($variable, $original, $type = 'mixed')
     {
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * Setter for ' . $variable . ' view variable';
         $class .= "\n\t" . ' *';
-        $class .= "\n\t" . ' * @param mixed $value View variable value';
+        $class .= "\n\t" . ' * @param '.$type.' $value View variable value';
         $class .= "\n\t" . ' * @return $this Chaining';
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function ' . $variable . '($value)';
