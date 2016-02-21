@@ -288,7 +288,7 @@ class Generator
     protected function generateViewVariableSetter($variable, $original, $type = 'mixed')
     {
         // Define type hint
-        $typeHint = $type !== 'mixed' && $type !== 'string' ? $type : '';
+        $typeHint = $type !== 'mixed' && $type !== 'string' ? $type.' ' : '';
 
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * Setter for ' . $variable . ' view variable';
