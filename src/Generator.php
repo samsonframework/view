@@ -132,6 +132,12 @@ class Generator
                 $variableText = $token[1];
                 // Store variable name
                 $variableName = ltrim($token[1], '$');
+
+                // Ignore static variables
+                if (isset($tokens[$idx-1]) && $tokens[$idx-1][0] === T_DOUBLE_COLON) {
+                    $metadata->static[$variableName] = $variableText;
+                }
+
                 // If next token is object operator
                 if ($tokens[$idx + 1][0] === T_OBJECT_OPERATOR) {
                     // Ignore $this
@@ -225,7 +231,7 @@ class Generator
     {
         $hash = '';
         foreach ($this->files as $relativePath => $absolutePath) {
-            $hash .= $relativePath.filemtime($absolutePath);
+            $hash .= md5($relativePath.filemtime($absolutePath));
         }
 
         return md5($hash);
@@ -254,14 +260,19 @@ class Generator
         // Iterate all view variables
         foreach (array_keys($metadata->variables) as $name) {
             $type = array_key_exists($name, $metadata->types) ? $metadata->types[$name] : 'mixed';
+            $static = array_key_exists($name, $metadata->static) ? ' static' : '';
             $this->generator
                 ->commentVar($type, 'View variable')
-                ->defClassVar('$'.$name, 'public')
-                ->text($this->generateViewVariableSetter(
+                ->defClassVar('$'.$name, 'public'.$static);
+
+            // Do not generate setters for static variables
+            if ($static !== 'static') {
+                $this->generator->text($this->generateViewVariableSetter(
                     $name,
                     $metadata->originalVariables[$name],
                     $type
                 ));
+            }
         }
 
         // Iterate namespace and create folder structure

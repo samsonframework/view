@@ -27,6 +27,9 @@ class Metadata
     /** @var array Collection of view file used variables types */
     public $types = array();
 
+    /** @var array Collection of view file static variables */
+    public $static = array();
+
     /** @var string Full path to file */
     public $path;
 }
