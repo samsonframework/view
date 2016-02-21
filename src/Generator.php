@@ -161,7 +161,7 @@ class Generator
         $this->generator
             ->defNamespace($metadata->namespace)
             ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
-            ->defClass($metadata->className, '\\' . View::CLASSNAME)
+            ->defClass($metadata->className, '\\' . View::class)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$path', 'protected', $metadata->path)
             ->commentVar('array', 'Collection of view variables')
