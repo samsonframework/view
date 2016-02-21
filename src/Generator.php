@@ -201,6 +201,17 @@ class Generator
         }
     }
 
+    /** @return string Hash representing generator state */
+    public function hash()
+    {
+        $hash = '';
+        foreach ($this->files as $relativePath => $absolutePath) {
+            $hash .= $relativePath.filemtime($absolutePath);
+        }
+
+        return md5($hash);
+    }
+
     /**
      * Create View class ancestor.
      *
