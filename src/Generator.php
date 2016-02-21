@@ -138,6 +138,8 @@ class Generator
                     // And two more tokens
                     $variableText .= $tokens[$idx + 1][1] . $variableName;
                 }
+                // Store original variable name
+                $metadata->originalVariables[$this->changeName($variableName)] = $variableName;
                 // Store view variable key - actual object name => full varaible usage
                 $metadata->variables[$this->changeName($variableName)] = $variableText;
             }
@@ -193,7 +195,7 @@ class Generator
     {
         foreach ($this->files as $relativePath => $absolutePath) {
             $this->metadata[$absolutePath] = $this->analyze($absolutePath);
-            $this->metadata[$absolutePath]->path = $relativePath;
+            $this->metadata[$absolutePath]->path = $absolutePath;
             list($this->metadata[$absolutePath]->className,
                 $this->metadata[$absolutePath]->namespace) = $this->generateClassName($absolutePath, $this->entryPath);
         }
@@ -236,7 +238,7 @@ class Generator
             $this->generator
                 ->commentVar('mixed', 'View variable')
                 ->defClassVar('$'.$name, 'public')
-                ->text($this->generateViewVariableSetter($name));
+                ->text($this->generateViewVariableSetter($name, $metadata->originalVariables[$name]));
         }
 
         // Iterate namespace and create folder structure
@@ -256,9 +258,11 @@ class Generator
      *
      * @param string $variable View variable name
      *
+     * @param string $original Original view variable name
+     *
      * @return string View variable setter method
      */
-    protected function generateViewVariableSetter($variable)
+    protected function generateViewVariableSetter($variable, $original)
     {
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * Setter for ' . $variable . ' view variable';
@@ -268,7 +272,7 @@ class Generator
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function ' . $variable . '($value)';
         $class .= "\n\t" . '{';
-        $class .= "\n\t\t" . 'return parent::set($value, \'' . $variable . '\');';
+        $class .= "\n\t\t" . 'return parent::set($value, \'' . $original . '\');';
         $class .= "\n\t" . '}' . "\n";
 
         return $class;
