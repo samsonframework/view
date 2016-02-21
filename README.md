@@ -5,6 +5,7 @@ SamsonFramework view rendering and generation implementation
 [![Latest Stable Version](https://poser.pugx.org/samsonframework/view/v/stable.svg)](https://packagist.org/packages/samsonframework/view)
 [![Build Status](https://scrutinizer-ci.com/g/samsonframework/view/badges/build.png?b=master)](https://scrutinizer-ci.com/g/samsonframework/view/build-status/master)
 [![Code Coverage](https://scrutinizer-ci.com/g/samsonframework/view/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/samsonframework/view/?branch=master)
+[![Code Climate](https://codeclimate.com/github/samsonframework/view/badges/gpa.svg)](https://codeclimate.com/github/samsonframework/view)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samsonframework/view/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samsonframework/view/?branch=master) 
 [![Total Downloads](https://poser.pugx.org/samsonframework/view/downloads.svg)](https://packagist.org/packages/samsonframework/view)
 [![Stories in Ready](https://badge.waffle.io/samsonframework/view.png?label=ready&title=Ready)](https://waffle.io/samsonframework/view)
