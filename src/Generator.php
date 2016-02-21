@@ -54,7 +54,27 @@ class Generator
     public function __construct(\samsonphp\generator\Generator $generator, $namespacePrefix)
     {
         $this->generator = $generator;
-        $this->namespacePrefix = ltrim($namespacePrefix, '\\');
+        $this->namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\').'\\';
+    }
+
+    /**
+     * Change variable name to camel caps format.
+     *
+     * @param string $variable
+     *
+     * @return string Changed variable name
+     */
+    public function changeName($variable)
+    {
+        return lcfirst(
+            implode(
+                '',
+                array_map(
+                    function ($element) { return ucfirst($element);},
+                    explode('_', $variable)
+                )
+            )
+        );
     }
 
     /**
@@ -109,7 +129,7 @@ class Generator
                     $variableText .= $tokens[$idx + 1][1] . $variableName;
                 }
                 // Store view variable key - actual object name => full varaible usage
-                $metadata->variables[$variableName] = $variableText;
+                $metadata->variables[$this->changeName($variableName)] = $variableText;
             }
         }
 
