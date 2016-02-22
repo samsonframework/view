@@ -135,7 +135,7 @@ class View implements ViewInterface
      */
     public function extend($parent, $block)
     {
-        $parent = new $parent();
+        //$parent = new $parent();
         $parent->output();
 
         //throw new ViewClassNotFound($parent);
