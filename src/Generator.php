@@ -294,10 +294,14 @@ class Generator
             mkdir($path, 0775, true);
         }
 
+        $newClassFile = $path.'/'.$metadata->className.'.php';
         file_put_contents(
-            $path.'/'.$metadata->className.'.php',
+            $newClassFile,
             '<?php'.$this->generator->endClass()->flush()
         );
+
+        // Make generated cache files accessible
+        chmod($newClassFile, 0777);
     }
 
     /**
