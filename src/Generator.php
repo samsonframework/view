@@ -262,6 +262,8 @@ class Generator
             ->defClass($metadata->className, '\\' . $this->parentViewClass)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$file', 'protected', $metadata->path)
+            ->commentVar('string', 'View source code')
+            ->defClassVar('$source', 'protected', '<<<\'EOT\'' . "\n" . file_get_contents($metadata->path) . "\n" . 'EOT');
             //->commentVar('array', 'Collection of view variables')
             //->defClassVar('$variables', 'public static', array_keys($metadata->variables))
             //->commentVar('array', 'Collection of view variable types')

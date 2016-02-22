@@ -25,7 +25,7 @@ class View implements ViewInterface
     /** @var string Full path to view file */
     protected $file;
 
-    /** @var string View souce code */
+    /** @var string View source code */
     protected $source;
 
     /** @var string Rendered view contents */
