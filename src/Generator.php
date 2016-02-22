@@ -54,16 +54,26 @@ class Generator
     /** @var string Scanning entry path */
     protected $entryPath;
 
+    /** @var string Parent view class name */
+    protected $parentViewClass;
+
     /**
      * Generator constructor.
      *
-     * @param \samsonphp\generator\Generator $generator
-     * @param string                         $namespacePrefix
-     * @param array                          $ignoreNamespace
+     * @param \samsonphp\generator\Generator $generator PHP code generator instance
+     * @param string                         $namespacePrefix Generated classes namespace will have it
+     * @param array                          $ignoreNamespace Namespace parts that needs to ignored
+     * @param string                         $parentViewClass Generated classes will extend it
      */
-    public function __construct(\samsonphp\generator\Generator $generator, $namespacePrefix, array $ignoreNamespace = array())
+    public function __construct(
+        \samsonphp\generator\Generator $generator,
+        $namespacePrefix,
+        array $ignoreNamespace = array(),
+        $parentViewClass = \samsonframework\view\View::class
+    )
     {
         $this->generator = $generator;
+        $this->parentViewClass = $parentViewClass;
         $this->ignoreNamespace = $ignoreNamespace;
         $this->namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\').'\\';
     }
@@ -248,7 +258,7 @@ class Generator
         $this->generator
             ->defNamespace($metadata->namespace)
             ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
-            ->defClass($metadata->className, '\\' . View::class)
+            ->defClass($metadata->className, '\\' . $this->parentViewClass)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$file', 'protected', $metadata->path)
             //->commentVar('array', 'Collection of view variables')
