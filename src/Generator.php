@@ -291,7 +291,7 @@ class Generator
         // Iterate namespace and create folder structure
         $path .= '/'.str_replace('\\', '/', $metadata->namespace);
         if (!is_dir($path)) {
-            mkdir($path, 0775, true);
+            mkdir($path, 0777, true);
         }
 
         $newClassFile = $path.'/'.$metadata->className.'.php';
