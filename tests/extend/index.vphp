@@ -1,0 +1,4 @@
+<?php /** @var \samsonframework\view\View $this */ ?>
+<h1>This is parent view</h1>
+<div><span>This is regular block<?=$parentTitle?></span></div>
+<div><span>This is nested block</span> <?php $this->block('item')?></div>

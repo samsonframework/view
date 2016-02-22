@@ -1,0 +1,3 @@
+<?php /** @var \samsonframework\view\View $this */ ?>
+<?php $this->extend(\test\view\IndexView::class, 'item') ?>
+<h1>This is inner ITEM <?=$title?></h1>

@@ -8,6 +8,7 @@ namespace samsonframework\view;
 use samsonframework\core\RenderInterface;
 use samsonframework\core\ViewInterface;
 use samsonframework\view\exception\VariableKeyNotFound;
+use samsonframework\view\exception\ViewClassNotFound;
 use samsonframework\view\exception\ViewFileNotFound;
 
 /**
@@ -30,6 +31,15 @@ class View implements ViewInterface
 
     /** @var string Rendered view contents */
     protected $output;
+
+    /** @var string Parent view class name */
+    protected $parentView;
+
+    /** @var string Parent view block name */
+    protected $parentBlock;
+
+    /** @var array Collection of view blocks */
+    protected $blocks = array();
 
     /**
      * Set current view for rendering.
@@ -113,6 +123,32 @@ class View implements ViewInterface
         }
 
         throw new VariableKeyNotFound($name);
+    }
+
+    /**
+     * Set current view parent rendering view and block.
+     *
+     * @param string $parent Fully qualified parent view name
+     * @param string $block  View block for rendering in parent view
+     *
+     * @throws ViewClassNotFound
+     */
+    public function extend($parent, &$block)
+    {
+        $parent = new $parent();
+        $parent->output();
+
+        //throw new ViewClassNotFound($parent);
+    }
+
+    /**
+     * Set current view nested block rendering view.
+     *
+     * @param string $blockName Nested view block container
+     */
+    public function block($blockName)
+    {
+        $this->blocks[] = $blockName;
     }
 
     /**
