@@ -25,6 +25,9 @@ class View implements ViewInterface
     /** @var string Full path to view file */
     protected $file;
 
+    /** @var string View souce code */
+    protected $source;
+
     /** @var string Rendered view contents */
     protected $output;
 
@@ -73,14 +76,23 @@ class View implements ViewInterface
         // Make variables accessible directly in view
         extract($this->data);
 
-        // Render view file
-        include($this->file);
+        // Render view from source
+        if (!empty($this->source)) {
+            eval(' ?>' . $this->source . '<?php ');
+        } else { // Render view from file
+            include($this->file);
+        }
 
         // Store buffer output
         $this->output = ob_get_contents();
 
         // Clear buffer
         ob_end_clean();
+
+        // Remove variables from context to free memory
+        foreach ($this->data as $key => $value) {
+            unset($key);
+        }
 
         // Returned rendered view
         return $this->output;
