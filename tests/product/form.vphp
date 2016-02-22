@@ -3,15 +3,16 @@
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 20.02.16 at 15:47
  */
-/** @var integer $number */
+/** @var int $number */
 /** @var \samsonframework\view\tests\TestObject $product */
 ?>
 <form>
+    <?php if (isset(static::$variable)) echo 1 ?>
     <label>Name:</label><input value="<?= $product->stringField ?>">
     <label>Surname:</label><input value="<?= $surname?>">
     <label>Email:</label><input type="email" value="<?= $email?>">
     <label>Size:</label><input type="number" value="<?= $number?>">
-    <h2><?= $this->header ?></h2>
+    <h2><?php if(isset($this->header)) echo $this->header ?></h2>
     <?php foreach($places as $place) :?>
         <div><?=$place?></div>
     <?php endforeach;?>
