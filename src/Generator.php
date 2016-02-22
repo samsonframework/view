@@ -146,6 +146,7 @@ class Generator
                 // Ignore static variables
                 if (isset($tokens[$idx-1]) && $tokens[$idx-1][0] === T_DOUBLE_COLON) {
                     $metadata->static[$variableName] = $variableText;
+                    continue;
                 }
 
                 // If next token is object operator
