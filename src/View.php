@@ -133,7 +133,7 @@ class View implements ViewInterface
      *
      * @throws ViewClassNotFound
      */
-    public function extend($parent, &$block)
+    public function extend($parent, $block)
     {
         $parent = new $parent();
         $parent->output();
