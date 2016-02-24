@@ -8,6 +8,7 @@ namespace samsonframework\view\tests;
 use samsonframework\view\Generator;
 use test\view\FormView;
 use test\view\ItemView;
+use test\view\SubItemView;
 
 class GeneratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,8 +39,19 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $generator->scan(__DIR__ . '/extend');
         $generator->generate(__DIR__.'/generated');
 
+        require_once 'generated/test/view/IndexView.php';
         require_once 'generated/test/view/ItemView.php';
-        (new ItemView())->title('innerTitle')->output();
+        $string = (new ItemView())->title('innerTitle')->parentTitle('parent title')->output();
+        $this->assertTrue(strpos($string, 'This is regular block parent title') !== false);
+        require_once 'generated/test/view/SubItemView.php';
+
+        $string = (new SubItemView())
+            ->title('innerTitle')
+            ->parentTitle('parent title')
+            ->subTitle('subitem block')
+            ->output();
+        $this->assertTrue(strpos($string, 'This is block - subitem block') !== false);
+        $this->assertTrue(strpos($string, 'This is second block - subitem block') !== false);
 
     }
 

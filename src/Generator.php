@@ -135,8 +135,9 @@ class Generator
     public function analyze($file)
     {
         $metadata = new Metadata();
+        $fileText = file_get_contents($file);
         // Use PHP tokenizer to find variables
-        foreach ($tokens = token_get_all(file_get_contents($file)) as $idx => $token) {
+        foreach ($tokens = token_get_all($fileText) as $idx => $token) {
             if (!is_string($token) && $token[0] === T_VARIABLE) {
                 // Store variable
                 $variableText = $token[1];
@@ -175,6 +176,14 @@ class Generator
                     $metadata->types[substr(trim($matches['variable']), 1)] = $matches['type'];
                 }
             }
+        }
+        if (preg_match_all('/\$this->block\(\'(?<block>[^ ]+)\'/', $fileText, $matches)) {
+            $metadata->blocks = $matches['block'];
+        }
+
+        if (preg_match('/\$this->extend\((?<class>[^ ]+\:\:class)\s*\,\s*\'(?<block>[^ ]+)\'\s*\)/', $fileText, $matches)) {
+            $metadata->parentClass = $matches['class'];
+            $metadata->parentBlock = $matches['block'];
         }
 
         return $metadata;
@@ -234,6 +243,7 @@ class Generator
 
         foreach ($this->metadata as $metadata) {
             $this->generateViewClass($metadata, $path);
+            $this->generateViewClass($metadata, $path);
         }
     }
 
@@ -256,12 +266,19 @@ class Generator
      */
     protected function generateViewClass(Metadata $metadata, $path)
     {
+        $metadataParentClass = eval('return '.$metadata->parentClass.';');
+
+        $parentClass = !isset($metadata->parentClass)?$this->parentViewClass:$metadataParentClass;
         $this->generator
             ->defNamespace($metadata->namespace)
             ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
-            ->defClass($metadata->className, '\\' . $this->parentViewClass)
+            ->defClass($metadata->className, '\\' . $parentClass)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$file', 'protected', $metadata->path)
+            ->commentVar('string', 'Parent block name')
+            ->defClassVar('$parentBlock', 'protected', $metadata->parentBlock)
+            ->commentVar('array', 'Blocks list')
+            ->defClassVar('$blocks', 'protected', $metadata->blocks)
             ->commentVar('string', 'View source code')
             ->defClassVar('$source', 'protected', '<<<\'EOT\'' . "\n" . file_get_contents($metadata->path) . "\n" . 'EOT');
             //->commentVar('array', 'Collection of view variables')

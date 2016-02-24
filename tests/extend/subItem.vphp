@@ -1,0 +1,3 @@
+<?php /** @var \samsonframework\view\View $this */ ?>
+<?php $this->extend(\test\view\ItemView::class, 'subItem') ?>
+- <?=$subTitle?>

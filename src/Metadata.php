@@ -32,4 +32,13 @@ class Metadata
 
     /** @var string Full path to file */
     public $path;
+
+    /** @var string Parent block name */
+    public $parentBlock;
+
+    /** @var string Parent class */
+    public $parentClass;
+
+    /** @var array Blocks list */
+    public $blocks = array();
 }

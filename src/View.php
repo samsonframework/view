@@ -32,14 +32,14 @@ class View implements ViewInterface
     /** @var string Rendered view contents */
     protected $output;
 
-    /** @var string Parent view class name */
-    protected $parentView;
-
     /** @var string Parent view block name */
     protected $parentBlock;
 
     /** @var array Collection of view blocks */
     protected $blocks = array();
+
+    /** @var array Blocks html list */
+    protected $blocksHtml = array();
 
     /**
      * Set current view for rendering.
@@ -76,15 +76,35 @@ class View implements ViewInterface
      * Method uses current view context and outputs rendering
      * result.
      *
+     * @param bool $onlyCurrent Render only current view without extends
      * @return string Rendered view
      */
-    public function output()
+    public function output($onlyCurrent = false)
     {
+        $this->innerOutput($onlyCurrent);
+
+        // Returned rendered view
+        return $this->output;
+    }
+
+
+    /**
+     * Render full views stack
+     *
+     * @param bool $onlyCurrent Render only current view without extends
+     * @return string Rendered view
+     */
+    public function innerOutput($onlyCurrent = false ,$blocksList = array(), $data = array())
+    {
+        //Set blocks html list
+        $this->blocksHtml = $blocksList;
+        // Merge current view's data with child view's data
+        $data = array_merge($this->data, $data);
         // Start buffering
         ob_start();
 
         // Make variables accessible directly in view
-        extract($this->data);
+        extract($data);
 
         // Render view from source
         if (!empty($this->source)) {
@@ -104,7 +124,12 @@ class View implements ViewInterface
             unset($key);
         }
 
-        // Returned rendered view
+        // Render parent view stack
+        $parentClass = get_parent_class($this);
+        if ($parentClass && !empty($this->parentBlock) && !$onlyCurrent) {
+            $blocksList = array_merge($blocksList, array($this->parentBlock=>$this->output));
+            $this->output = (new $parentClass())->innerOutput($onlyCurrent, $blocksList, $data);
+        }
         return $this->output;
     }
 
@@ -148,7 +173,9 @@ class View implements ViewInterface
      */
     public function block($blockName)
     {
-        $this->blocks[] = $blockName;
+        if (isset($this->blocksHtml[$blockName])) {
+            echo $this->blocksHtml[$blockName];
+        }
     }
 
     /**
@@ -195,6 +222,7 @@ class View implements ViewInterface
 
         return $this;
     }
+
 
     /**
      * Set renderable object as view variable.
