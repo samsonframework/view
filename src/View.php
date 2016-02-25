@@ -89,17 +89,22 @@ class View implements ViewInterface
 
 
     /**
-     * Render full views stack
+     * Render full views stack.
      *
-     * @param bool $onlyCurrent Render only current view without extends
+     * @param bool  $onlyCurrent Render only current view without extends
+     * @param array $blocksList Block for rendering in the view
+     * @param array $data View data collection
+     *
      * @return string Rendered view
      */
-    public function innerOutput($onlyCurrent = false ,$blocksList = array(), $data = array())
+    public function innerOutput($onlyCurrent = false, array $blocksList = array(), array $data = array())
     {
         //Set blocks html list
         $this->blocksHtml = $blocksList;
+
         // Merge current view's data with child view's data
         $data = array_merge($this->data, $data);
+
         // Start buffering
         ob_start();
 
@@ -127,9 +132,12 @@ class View implements ViewInterface
         // Render parent view stack
         $parentClass = get_parent_class($this);
         if ($parentClass && !empty($this->parentBlock) && !$onlyCurrent) {
-            $blocksList = array_merge($blocksList, array($this->parentBlock=>$this->output));
+            // Merge blocks mode
+            $blocksList = array_merge($blocksList, array($this->parentBlock => $this->output));
+            // Go deeper in recursion with parent view passing rendered blocks collection
             $this->output = (new $parentClass())->innerOutput($onlyCurrent, $blocksList, $data);
         }
+
         return $this->output;
     }
 
@@ -155,15 +163,10 @@ class View implements ViewInterface
      *
      * @param string $parent Fully qualified parent view name
      * @param string $block  View block for rendering in parent view
-     *
-     * @throws ViewClassNotFound
      */
     public function extend($parent, $block)
     {
-        //$parent = new $parent();
-        //$parent->output();
 
-        //throw new ViewClassNotFound($parent);
     }
 
     /**
@@ -173,7 +176,7 @@ class View implements ViewInterface
      */
     public function block($blockName)
     {
-        if (isset($this->blocksHtml[$blockName])) {
+        if (array_key_exists($blockName, $this->blocksHtml)) {
             echo $this->blocksHtml[$blockName];
         }
     }
