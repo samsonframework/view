@@ -37,7 +37,7 @@ class Generator
     protected static $reservedWords = array('list');
 
     /** @var Metadata[] Collection of view metadata */
-    protected $metadata = array();
+    public $metadata = array();
 
     /** @var \samsonphp\generator\Generator */
     protected $generator;
