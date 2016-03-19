@@ -280,7 +280,7 @@ class Generator
             ->commentVar('array', 'Blocks list')
             ->defClassVar('$blocks', 'protected', $metadata->blocks)
             ->commentVar('string', 'View source code')
-            ->defClassVar('$source', 'protected', '<<<\'EOT\'' . "\n" . file_get_contents($metadata->path) . "\n" . 'EOT');
+            ->defClassVar('$source', 'protected', '<<<\'EOT\'' . "\n" . trim(file_get_contents($metadata->path)) . "\n" . 'EOT');
             //->commentVar('array', 'Collection of view variables')
             //->defClassVar('$variables', 'public static', array_keys($metadata->variables))
             //->commentVar('array', 'Collection of view variable types')
