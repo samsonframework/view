@@ -8,7 +8,6 @@ namespace samsonframework\view;
 use samsonframework\core\RenderInterface;
 use samsonframework\core\ViewInterface;
 use samsonframework\view\exception\VariableKeyNotFound;
-use samsonframework\view\exception\ViewClassNotFound;
 use samsonframework\view\exception\ViewFileNotFound;
 
 /**

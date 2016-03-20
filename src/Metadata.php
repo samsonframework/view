@@ -41,4 +41,7 @@ class Metadata
 
     /** @var array Blocks list */
     public $blocks = array();
+
+    /** @var string Path to generated class file */
+    public $generatedPath;
 }
