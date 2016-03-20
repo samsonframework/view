@@ -57,6 +57,9 @@ class Generator
     /** @var string Parent view class name */
     protected $parentViewClass;
 
+    /** @var callable External view preprocessor */
+    protected $viewHandler;
+
     /**
      * Generator constructor.
      *
@@ -69,33 +72,15 @@ class Generator
         \samsonphp\generator\Generator $generator,
         $namespacePrefix,
         array $ignoreNamespace = array(),
-        $parentViewClass = \samsonframework\view\View::class
+        $parentViewClass = \samsonframework\view\View::class,
+        $viewHandler = null
     )
     {
+        $this->viewHandler = $viewHandler;
         $this->generator = $generator;
         $this->parentViewClass = $parentViewClass;
         $this->ignoreNamespace = $ignoreNamespace;
         $this->namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\').'\\';
-    }
-
-    /**
-     * Change variable name to camel caps format.
-     *
-     * @param string $variable
-     *
-     * @return string Changed variable name
-     */
-    public function changeName($variable)
-    {
-        return lcfirst(
-            implode(
-                '',
-                array_map(
-                    function ($element) { return ucfirst($element);},
-                    explode('_', $variable)
-                )
-            )
-        );
     }
 
     /**
@@ -122,6 +107,26 @@ class Generator
             foreach (glob(rtrim($path, '/') . '/*.'.$extension) as $file) {
                 $this->files[str_replace($source, '', $file)] = $file;
             }
+        }
+    }
+
+    /**
+     * Generate view classes.
+     *
+     * @param string $path Entry path for generated classes and folders
+     */
+    public function generate($path = __DIR__)
+    {
+        foreach ($this->files as $relativePath => $absolutePath) {
+            $this->metadata[$absolutePath] = $this->analyze($absolutePath);
+            $this->metadata[$absolutePath]->path = $absolutePath;
+            list($this->metadata[$absolutePath]->className,
+                $this->metadata[$absolutePath]->namespace) = $this->generateClassName($absolutePath, $this->entryPath);
+        }
+
+        foreach ($this->metadata as $metadata) {
+            $this->generateViewClass($metadata, $path);
+            $this->generateViewClass($metadata, $path);
         }
     }
 
@@ -190,6 +195,26 @@ class Generator
     }
 
     /**
+     * Change variable name to camel caps format.
+     *
+     * @param string $variable
+     *
+     * @return string Changed variable name
+     */
+    public function changeName($variable)
+    {
+        return lcfirst(
+            implode(
+                '',
+                array_map(
+                    function ($element) { return ucfirst($element);},
+                    explode('_', $variable)
+                )
+            )
+        );
+    }
+
+    /**
      * Generic class name and its name space generator.
      *
      * @param string $file      Full path to view file
@@ -228,37 +253,6 @@ class Generator
     }
 
     /**
-     * Generate view classes.
-     *
-     * @param string $path Entry path for generated classes and folders
-     */
-    public function generate($path = __DIR__)
-    {
-        foreach ($this->files as $relativePath => $absolutePath) {
-            $this->metadata[$absolutePath] = $this->analyze($absolutePath);
-            $this->metadata[$absolutePath]->path = $absolutePath;
-            list($this->metadata[$absolutePath]->className,
-                $this->metadata[$absolutePath]->namespace) = $this->generateClassName($absolutePath, $this->entryPath);
-        }
-
-        foreach ($this->metadata as $metadata) {
-            $this->generateViewClass($metadata, $path);
-            $this->generateViewClass($metadata, $path);
-        }
-    }
-
-    /** @return string Hash representing generator state */
-    public function hash()
-    {
-        $hash = '';
-        foreach ($this->files as $relativePath => $absolutePath) {
-            $hash .= md5($relativePath.filemtime($absolutePath));
-        }
-
-        return md5($hash);
-    }
-
-    /**
      * Create View class ancestor.
      *
      * @param Metadata $metadata View file metadata
@@ -267,6 +261,17 @@ class Generator
     protected function generateViewClass(Metadata $metadata, $path)
     {
         $metadataParentClass = eval('return '.$metadata->parentClass.';');
+
+        // Read view file
+        $viewCode = trim(file_get_contents($metadata->path));
+
+        // If we have external handler - pass view code to it for conversion
+        if (is_callable($this->viewHandler)) {
+            $viewCode = call_user_func($this->viewHandler, $viewCode);
+        }
+
+        // Convert to string for defining
+        $viewCode = '<<<\'EOT\'' . "\n" . $viewCode . "\n" . 'EOT';
 
         $parentClass = !isset($metadata->parentClass)?$this->parentViewClass:$metadataParentClass;
         $this->generator
@@ -280,7 +285,7 @@ class Generator
             ->commentVar('array', 'Blocks list')
             ->defClassVar('$blocks', 'protected', $metadata->blocks)
             ->commentVar('string', 'View source code')
-            ->defClassVar('$source', 'protected', '<<<\'EOT\'' . "\n" . trim(file_get_contents($metadata->path)) . "\n" . 'EOT');
+            ->defClassVar('$source', 'protected', $viewCode);
             //->commentVar('array', 'Collection of view variables')
             //->defClassVar('$variables', 'public static', array_keys($metadata->variables))
             //->commentVar('array', 'Collection of view variable types')
@@ -317,6 +322,9 @@ class Generator
             '<?php'.$this->generator->endClass()->flush()
         );
 
+        // Store path to generated class
+        $metadata->generatedPath = $newClassFile;
+
         // Make generated cache files accessible
         chmod($newClassFile, 0777);
     }
@@ -347,5 +355,16 @@ class Generator
         $class .= "\n\t" . '}' . "\n";
 
         return $class;
+    }
+
+    /** @return string Hash representing generator state */
+    public function hash()
+    {
+        $hash = '';
+        foreach ($this->files as $relativePath => $absolutePath) {
+            $hash .= md5($relativePath.filemtime($absolutePath));
+        }
+
+        return md5($hash);
     }
 }
