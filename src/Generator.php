@@ -57,9 +57,6 @@ class Generator
     /** @var string Parent view class name */
     protected $parentViewClass;
 
-    /** @var callable External view preprocessor */
-    protected $viewHandler;
-
     /**
      * Generator constructor.
      *
@@ -72,11 +69,9 @@ class Generator
         \samsonphp\generator\Generator $generator,
         $namespacePrefix,
         array $ignoreNamespace = array(),
-        $parentViewClass = \samsonframework\view\View::class,
-        $viewHandler = null
+        $parentViewClass = \samsonframework\view\View::class
     )
     {
-        $this->viewHandler = $viewHandler;
         $this->generator = $generator;
         $this->parentViewClass = $parentViewClass;
         $this->ignoreNamespace = $ignoreNamespace;
@@ -113,9 +108,12 @@ class Generator
     /**
      * Generate view classes.
      *
-     * @param string $path Entry path for generated classes and folders
+     * @param string        $path        Entry path for generated classes and folders
+     * @param null|callable $viewHandler View code handler
+     *
+     * @throws GeneratedViewPathHasReservedWord
      */
-    public function generate($path = __DIR__)
+    public function generate($path = __DIR__, $viewHandler = null)
     {
         foreach ($this->files as $relativePath => $absolutePath) {
             $this->metadata[$absolutePath] = $this->analyze($absolutePath);
@@ -125,8 +123,7 @@ class Generator
         }
 
         foreach ($this->metadata as $metadata) {
-            $this->generateViewClass($metadata, $path);
-            $this->generateViewClass($metadata, $path);
+            $this->generateViewClass($metadata, $path, $viewHandler);
         }
     }
 
@@ -255,10 +252,11 @@ class Generator
     /**
      * Create View class ancestor.
      *
-     * @param Metadata $metadata View file metadata
-     * @param string   $path Entry path for generated classes and folders
+     * @param Metadata      $metadata    View file metadata
+     * @param string        $path        Entry path for generated classes and folders
+     * @param null|callable $viewHandler View code handler
      */
-    protected function generateViewClass(Metadata $metadata, $path)
+    protected function generateViewClass(Metadata $metadata, $path, $viewHandler = null)
     {
         $metadataParentClass = eval('return '.$metadata->parentClass.';');
 
@@ -266,8 +264,8 @@ class Generator
         $viewCode = trim(file_get_contents($metadata->path));
 
         // If we have external handler - pass view code to it for conversion
-        if (is_callable($this->viewHandler)) {
-            $viewCode = call_user_func($this->viewHandler, $viewCode);
+        if (is_callable($viewHandler)) {
+            $viewCode = call_user_func($viewHandler, $viewCode);
         }
 
         // Convert to string for defining
