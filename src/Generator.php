@@ -61,29 +61,28 @@ class Generator
      * Generator constructor.
      *
      * @param \samsonphp\generator\Generator $generator PHP code generator instance
-     * @param string                         $namespacePrefix Generated classes namespace will have it
-     * @param array                          $ignoreNamespace Namespace parts that needs to ignored
-     * @param string                         $parentViewClass Generated classes will extend it
+     * @param string $namespacePrefix Generated classes namespace will have it
+     * @param array $ignoreNamespace Namespace parts that needs to ignored
+     * @param string $parentViewClass Generated classes will extend it
      */
     public function __construct(
         \samsonphp\generator\Generator $generator,
         $namespacePrefix,
         array $ignoreNamespace = array(),
         $parentViewClass = \samsonframework\view\View::class
-    )
-    {
+    ) {
         $this->generator = $generator;
         $this->parentViewClass = $parentViewClass;
         $this->ignoreNamespace = $ignoreNamespace;
-        $this->namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\').'\\';
+        $this->namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\') . '\\';
     }
 
     /**
      * Recursively scan path for files with specified extensions.
      *
-     * @param string $source     Entry point path
-     * @param string $path       Entry path for scanning
-     * @param array  $extensions Collection of file extensions without dot
+     * @param string $source Entry point path
+     * @param string $path Entry path for scanning
+     * @param array $extensions Collection of file extensions without dot
      */
     public function scan($source, array $extensions = array(View::DEFAULT_EXT), $path = null)
     {
@@ -92,14 +91,14 @@ class Generator
         $path = isset($path) ? $path : $source;
 
         // Recursively go deeper into inner folders for scanning
-        $folders  = glob($path.'/*', GLOB_ONLYDIR);
+        $folders = glob($path . '/*', GLOB_ONLYDIR);
         foreach ($folders as $folder) {
             $this->scan($source, $extensions, $folder);
         }
 
         // Iterate file extensions
         foreach ($extensions as $extension) {
-            foreach (glob(rtrim($path, '/') . '/*.'.$extension) as $file) {
+            foreach (glob(rtrim($path, '/') . '/*.' . $extension) as $file) {
                 $this->files[str_replace($source, '', $file)] = $file;
             }
         }
@@ -108,7 +107,7 @@ class Generator
     /**
      * Generate view classes.
      *
-     * @param string        $path        Entry path for generated classes and folders
+     * @param string $path Entry path for generated classes and folders
      * @param null|callable $viewHandler View code handler
      *
      * @throws GeneratedViewPathHasReservedWord
@@ -147,7 +146,7 @@ class Generator
                 $variableName = ltrim($token[1], '$');
 
                 // Ignore static variables
-                if (isset($tokens[$idx-1]) && $tokens[$idx-1][0] === T_DOUBLE_COLON) {
+                if (isset($tokens[$idx - 1]) && $tokens[$idx - 1][0] === T_DOUBLE_COLON) {
                     $metadata->static[$variableName] = $variableText;
                     continue;
                 }
@@ -183,7 +182,8 @@ class Generator
             $metadata->blocks = $matches['block'];
         }
 
-        if (preg_match('/\$this->extend\((?<class>[^ ]+\:\:class)\s*\,\s*\'(?<block>[^ ]+)\'\s*\)/', $fileText, $matches)) {
+        if (preg_match('/\$this->extend\((?<class>[^ ]+\:\:class)\s*\,\s*\'(?<block>[^ ]+)\'\s*\)/', $fileText,
+            $matches)) {
             $metadata->parentClass = $matches['class'];
             $metadata->parentBlock = $matches['block'];
         }
@@ -204,17 +204,20 @@ class Generator
             implode(
                 '',
                 array_map(
-                    function ($element) { return ucfirst($element);},
-                    explode('_', $variable)
+                    function ($element) {
+                        return ucfirst($element);
+                    },
+                    explode('_', str_replace('-', '_', $variable))
                 )
             )
+
         );
     }
 
     /**
      * Generic class name and its name space generator.
      *
-     * @param string $file      Full path to view file
+     * @param string $file Full path to view file
      * @param string $entryPath Entry path
      *
      * @return array Class name[0] and namespace[1]
@@ -223,17 +226,22 @@ class Generator
     protected function generateClassName($file, $entryPath)
     {
         // Get only file name as a class name with suffix
-        $className = ucfirst(pathinfo($file, PATHINFO_FILENAME) . self::VIEW_CLASSNAME_SUFFIX);
+        $className = ucfirst($this->changeName(pathinfo($file, PATHINFO_FILENAME)). self::VIEW_CLASSNAME_SUFFIX);
 
         // Get namespace as part of file path relatively to entry path
-        $nameSpace = rtrim(ltrim(
-            str_replace(
-                '/',
-                '\\',
-                str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME))
-            ),
-            '\\'
-        ), '\\');
+        $nameSpace = strtolower(
+            rtrim(
+                ltrim(
+                    str_replace(
+                        '/',
+                        '\\',
+                        str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME))
+                    ),
+                    '\\'
+                ),
+                '\\'
+            )
+        );
 
         // Remove ignored parts from namespaces
         $nameSpace = str_replace($this->ignoreNamespace, '', $nameSpace);
@@ -241,7 +249,7 @@ class Generator
         // Check generated namespaces
         foreach (static::$reservedWords as $reservedWord) {
             if (strpos($nameSpace, '\\' . $reservedWord) !== false) {
-                throw new GeneratedViewPathHasReservedWord($file.'('.$reservedWord.')');
+                throw new GeneratedViewPathHasReservedWord($file . '(' . $reservedWord . ')');
             }
         }
 
@@ -252,13 +260,13 @@ class Generator
     /**
      * Create View class ancestor.
      *
-     * @param Metadata      $metadata    View file metadata
-     * @param string        $path        Entry path for generated classes and folders
+     * @param Metadata $metadata View file metadata
+     * @param string $path Entry path for generated classes and folders
      * @param null|callable $viewHandler View code handler
      */
     protected function generateViewClass(Metadata $metadata, $path, $viewHandler = null)
     {
-        $metadataParentClass = eval('return '.$metadata->parentClass.';');
+        $metadataParentClass = eval('return ' . $metadata->parentClass . ';');
 
         // Read view file
         $viewCode = trim(file_get_contents($metadata->path));
@@ -271,10 +279,10 @@ class Generator
         // Convert to string for defining
         $viewCode = '<<<\'EOT\'' . "\n" . $viewCode . "\n" . 'EOT';
 
-        $parentClass = !isset($metadata->parentClass)?$this->parentViewClass:$metadataParentClass;
+        $parentClass = !isset($metadata->parentClass) ? $this->parentViewClass : $metadataParentClass;
         $this->generator
             ->defNamespace($metadata->namespace)
-            ->multiComment(array('Class for view "'.$metadata->path.'" rendering'))
+            ->multiComment(array('Class for view "' . $metadata->path . '" rendering'))
             ->defClass($metadata->className, '\\' . $parentClass)
             ->commentVar('string', 'Path to view file')
             ->defClassVar('$file', 'protected', $metadata->path)
@@ -284,10 +292,10 @@ class Generator
             ->defClassVar('$blocks', 'protected', $metadata->blocks)
             ->commentVar('string', 'View source code')
             ->defClassVar('$source', 'protected', $viewCode);
-            //->commentVar('array', 'Collection of view variables')
-            //->defClassVar('$variables', 'public static', array_keys($metadata->variables))
-            //->commentVar('array', 'Collection of view variable types')
-            //->defClassVar('$types', 'public static', $metadata->types)
+        //->commentVar('array', 'Collection of view variables')
+        //->defClassVar('$variables', 'public static', array_keys($metadata->variables))
+        //->commentVar('array', 'Collection of view variable types')
+        //->defClassVar('$types', 'public static', $metadata->types)
         ;
 
         // Iterate all view variables
@@ -296,7 +304,7 @@ class Generator
             $static = array_key_exists($name, $metadata->static) ? ' static' : '';
             $this->generator
                 ->commentVar($type, 'View variable')
-                ->defClassVar('$'.$name, 'public'.$static);
+                ->defClassVar('$' . $name, 'public' . $static);
 
             // Do not generate setters for static variables
             if ($static !== ' static') {
@@ -309,15 +317,15 @@ class Generator
         }
 
         // Iterate namespace and create folder structure
-        $path .= '/'.str_replace('\\', '/', $metadata->namespace);
+        $path .= '/' . str_replace('\\', '/', $metadata->namespace);
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
 
-        $newClassFile = $path.'/'.$metadata->className.'.php';
+        $newClassFile = $path . '/' . $metadata->className . '.php';
         file_put_contents(
             $newClassFile,
-            '<?php'.$this->generator->endClass()->flush()
+            '<?php' . $this->generator->endClass()->flush()
         );
 
         // Store path to generated class
@@ -339,15 +347,15 @@ class Generator
     protected function generateViewVariableSetter($variable, $original, $type = 'mixed')
     {
         // Define type hint
-        $typeHint = strpos($type, '\\') !== false ? $type.' ' : '';
+        $typeHint = strpos($type, '\\') !== false ? $type . ' ' : '';
 
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * Setter for ' . $variable . ' view variable';
         $class .= "\n\t" . ' *';
-        $class .= "\n\t" . ' * @param '.$type.' $value View variable value';
+        $class .= "\n\t" . ' * @param ' . $type . ' $value View variable value';
         $class .= "\n\t" . ' * @return $this Chaining';
         $class .= "\n\t" . ' */';
-        $class .= "\n\t" . 'public function ' . $variable . '('.$typeHint.'$value)';
+        $class .= "\n\t" . 'public function ' . $variable . '(' . $typeHint . '$value)';
         $class .= "\n\t" . '{';
         $class .= "\n\t\t" . 'return parent::set($value, \'' . $original . '\');';
         $class .= "\n\t" . '}' . "\n";
@@ -360,7 +368,7 @@ class Generator
     {
         $hash = '';
         foreach ($this->files as $relativePath => $absolutePath) {
-            $hash .= md5($relativePath.filemtime($absolutePath));
+            $hash .= md5($relativePath . filemtime($absolutePath));
         }
 
         return md5($hash);
