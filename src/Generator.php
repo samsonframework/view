@@ -235,7 +235,7 @@ class Generator
                     str_replace(
                         '/',
                         '\\',
-                        str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME))
+                        str_replace(array('-', '_'), '', str_replace($entryPath, '', pathinfo($file, PATHINFO_DIRNAME)))
                     ),
                     '\\'
                 ),
